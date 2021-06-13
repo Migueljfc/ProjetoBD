@@ -11,8 +11,6 @@ namespace AgenciaViagens
 {
     public partial class Form2 : Form
     {
-        private SqlConnection cn;
-
         public Form2()
         {
             InitializeComponent();
@@ -21,76 +19,7 @@ namespace AgenciaViagens
         private void Form2_Load(object sender, EventArgs e)
         {
             textBox1.Text = Form1.currentAdmin.ToString();
-            cn = getSGBDConnection();
         }
-
-        private SqlConnection getSGBDConnection()
-        {
-            // return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-        }
-
-        private bool verifySGBDConnection()
-        {
-            if (cn == null)
-                cn = getSGBDConnection();
-
-            if (cn.State != ConnectionState.Open)
-                cn.Open();
-
-            return cn.State == ConnectionState.Open;
-        }
-
-        private void CreateClient(Cliente C)
-        {
-            if (!verifySGBDConnection())
-                return;
-            SqlCommand cmd = new SqlCommand();
-
-            cmd.CommandText = "INSERT Cliente (CC, Nome, Apelido, Email, Telefone) " + "VALUES (@CC, @nome, @apelido, @email, @telefone) ";
-            cmd.Parameters.Clear();
-            cmd.Parameters.AddWithValue("@CC", C.ClientCC);
-            cmd.Parameters.AddWithValue("@nome", C.Nome);
-            cmd.Parameters.AddWithValue("@apelido", C.Apelido);
-            cmd.Parameters.AddWithValue("@email", C.Email);
-            cmd.Parameters.AddWithValue("@telefone", C.Telefone);
-            cmd.Connection = cn;
-
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Failed to update contact in database. \n ERROR MESSAGE: \n" + ex.Message);
-            }
-            finally
-            {
-                cn.Close();
-            }
-        }
-
-        private bool SaveClient()
-        {
-            Cliente cliente = new Cliente();
-            try
-            {
-                cliente.Nome = textBox4.Text;
-                cliente.Apelido = textBox2.Text;
-                cliente.Email = textBox6.Text;
-                cliente.ClientCC = textBox5.;
-                cliente.Telefone = textBox3;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                return false;
-            }
-            CreateClient(cliente);
-            return true;
-        }
-
-
         private void ShowCliente()
         {
     
@@ -187,11 +116,6 @@ namespace AgenciaViagens
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             
-        }
-
-        private void textBox6_TextChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

@@ -16,13 +16,13 @@ namespace AgenciaViagens
     {
         private SqlConnection cn;
         public static int currentAdmin;
-
-
         public Form1()
         {
             InitializeComponent();
             
         }
+
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -30,13 +30,10 @@ namespace AgenciaViagens
             cn = getSGBDConnection();
 
         }
-
         private SqlConnection getSGBDConnection()
         {
-            // return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
-
         private bool verifySGBDConnection()
         {
             if (cn == null)
@@ -47,7 +44,6 @@ namespace AgenciaViagens
 
             return cn.State == ConnectionState.Open;
         }
-
         private void CreateAdmin(Admin A)
         {
             if (!verifySGBDConnection())
@@ -189,11 +185,6 @@ namespace AgenciaViagens
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox6_TextChanged(object sender, EventArgs e)
         {
 
         }
