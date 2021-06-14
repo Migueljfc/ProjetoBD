@@ -13,6 +13,7 @@ namespace AgenciaViagens
     {
 
         private SqlConnection cn;
+        private int currentClient;
 
         public Form2()
         {
@@ -40,6 +41,16 @@ namespace AgenciaViagens
                 cn.Open();
 
             return cn.State == ConnectionState.Open;
+        }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listBox2.SelectedIndex > 0)
+            {
+                currentClient = listBox2.SelectedIndex;
+                ShowClient();
+            }
+
         }
 
         private void CreateClient(Cliente C)
@@ -88,7 +99,39 @@ namespace AgenciaViagens
                 return false;
             }
             CreateClient(cliente);
+            listBox2.Items.Add(cliente);
             return true;
+        }
+
+        private void ShowClient()
+        {
+            if(listBox2.Items.Count == 0 | currentClient < 0)
+            {
+                return;
+            }
+
+            Cliente client = new Cliente();
+            client = (Cliente)listBox2.Items[currentClient];
+            textBox4.Text = client.Nome;
+            textBox2.Text = client.Apelido;
+            textBox6.Text = client.Email;
+            //textBox5.Text = client.ClientCC;
+            //textBox3.Text = client.Telefone;
+
+        }
+
+        private void RemoveClient()
+        {
+
+        }
+
+        private void ClearFields()
+        {
+            textBox4.Text = "";
+            textBox2.Text = "";
+            textBox6.Text = "";
+            textBox5.Text = "";
+            textBox3.Text = "";
         }
 
         private void ShowCliente()
@@ -174,6 +217,8 @@ namespace AgenciaViagens
             if (SaveClient())
             {
                 System.Windows.Forms.MessageBox.Show("Criada com sucesso");
+                ClearFields();
+
             }
             else
             {
@@ -201,19 +246,6 @@ namespace AgenciaViagens
 
         }
 
-        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (!verifySGBDConnection())
-                return;
-            SqlCommand cmd = new SqlCommand("SELECT (nome + ' ' + apelido + ' ' + CC) AS nomeCompleto FROM Cliente");
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            while(reader.Read())
-            {
-                listBox2.Items.Add(reader["nomeCompleto"]);
-            }
-            cn.Close();
-
-        }
+        
     }
 }
