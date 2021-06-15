@@ -135,7 +135,7 @@ namespace AgenciaViagens
             {
                 UpdateClient(cliente);
                 listBox2.Items[currentClient] = cliente;
-                Console.WriteLine("Create");
+                Console.WriteLine("Update");
             }
             return true;
         }
@@ -166,15 +166,31 @@ namespace AgenciaViagens
         {
             if (!verifySGBDConnection())
                 return;
-            SqlCommand cmd = new SqlCommand();
+            string nome = textBox4.Text;
+            string apelido = textBox2.Text;
+            string email = textBox6.Text;
+            int clientCC = Int32.Parse(textBox5.Text);
+            int telefone = Int32.Parse(textBox3.Text);
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "UpdateCliente"
+                
+            };
 
-            cmd.CommandText = "UPDATE Cliente " + "SET CC = @CC, " + "    nome = @nome, " + "    apelido = @apelido, " + "    telefone = @telefone, " + "    email = @email";
             cmd.Parameters.Clear();
-            cmd.Parameters.AddWithValue("@CC", client.ClientCC);
-            cmd.Parameters.AddWithValue("@nome",client.Nome);
-            cmd.Parameters.AddWithValue("@apelido", client.Apelido);
-            cmd.Parameters.AddWithValue("@telefone", client.Telefone);
-            cmd.Parameters.AddWithValue("@email", client.Email);
+            cmd.Parameters.Add(new SqlParameter("@CC", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@nome", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@apelido", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@telefone", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@email", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@CC"].Value = clientCC;
+            cmd.Parameters["@nome"].Value = nome;
+            cmd.Parameters["@apelido"].Value = apelido;
+            cmd.Parameters["@email"].Value = email;
+            cmd.Parameters["@telefone"].Value = telefone;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
             cmd.Connection = cn;
 
             try
@@ -183,11 +199,11 @@ namespace AgenciaViagens
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to update contact in database. \n ERROR MESSAGE: \n" + ex.Message);
+                throw new Exception("Erro falha ao Editar Cliente \n ERROR MESSAGE: \n" + ex.Message);
             }
             finally
             {
-                MessageBox.Show("Update OK");
+                MessageBox.Show("Editado com sucesso");
                 cn.Close();
             }
         }
@@ -366,6 +382,16 @@ namespace AgenciaViagens
 
             button7.Visible = false;
             button9.Visible = false;
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Application.Exit();
+        }
+
+        private void tabPage4_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

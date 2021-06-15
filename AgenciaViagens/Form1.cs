@@ -160,11 +160,9 @@ namespace AgenciaViagens
             if (reader.HasRows)
             {
                 currentAdmin = Int32.Parse(textBox1.Text);
-
-                var oldform = new Form1();
-                oldform.Visible = false;
                 var newform = new Form2();
                 newform.Show();
+                this.Hide();
 
             }
             else
