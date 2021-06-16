@@ -29,6 +29,7 @@ namespace AgenciaViagens
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -75,6 +76,7 @@ namespace AgenciaViagens
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.button10 = new System.Windows.Forms.Button();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -85,7 +87,7 @@ namespace AgenciaViagens
             // textBox1
             // 
             this.textBox1.Enabled = false;
-            this.textBox1.Location = new System.Drawing.Point(2, 27);
+            this.textBox1.Location = new System.Drawing.Point(3, 31);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(62, 27);
             this.textBox1.TabIndex = 0;
@@ -93,7 +95,7 @@ namespace AgenciaViagens
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(2, 4);
+            this.label1.Location = new System.Drawing.Point(2, 5);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 20);
             this.label1.TabIndex = 1;
@@ -194,10 +196,10 @@ namespace AgenciaViagens
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Location = new System.Drawing.Point(70, 1);
+            this.tabControl1.Location = new System.Drawing.Point(67, 1);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(937, 559);
+            this.tabControl1.Size = new System.Drawing.Size(942, 559);
             this.tabControl1.TabIndex = 22;
             // 
             // tabPage1
@@ -225,7 +227,7 @@ namespace AgenciaViagens
             this.tabPage1.Location = new System.Drawing.Point(4, 29);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(929, 526);
+            this.tabPage1.Size = new System.Drawing.Size(934, 526);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Clientes";
             // 
@@ -337,7 +339,7 @@ namespace AgenciaViagens
             this.tabPage2.Location = new System.Drawing.Point(4, 29);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(929, 526);
+            this.tabPage2.Size = new System.Drawing.Size(934, 526);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Viagem";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -522,7 +524,7 @@ namespace AgenciaViagens
             // 
             this.tabPage3.Location = new System.Drawing.Point(4, 29);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(929, 526);
+            this.tabPage3.Size = new System.Drawing.Size(934, 526);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "tabPage3";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -534,12 +536,19 @@ namespace AgenciaViagens
             this.button10.Cursor = System.Windows.Forms.Cursors.Hand;
             this.button10.FlatAppearance.BorderSize = 0;
             this.button10.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button10.Location = new System.Drawing.Point(3, 60);
+            this.button10.Location = new System.Drawing.Point(980, 1);
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(25, 26);
             this.button10.TabIndex = 30;
             this.button10.UseVisualStyleBackColor = false;
             this.button10.Click += new System.EventHandler(this.button10_Click);
+            // 
+            // imageList1
+            // 
+            this.imageList1.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList1.Images.SetKeyName(0, "6101_JohnnySins.png");
             // 
             // Form2
             // 
@@ -617,5 +626,6 @@ namespace AgenciaViagens
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ImageList imageList1;
     }
 }
