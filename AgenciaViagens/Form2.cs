@@ -30,8 +30,8 @@ namespace AgenciaViagens
 
         private SqlConnection getSGBDConnection()
         {
-            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            //return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            //return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
 
         private bool verifySGBDConnection()
@@ -159,18 +159,58 @@ namespace AgenciaViagens
 
         private void RemoveClient()
         {
+            int clientCC = Int32.Parse(textBox5.Text);
 
+            if (!verifySGBDConnection())
+            {
+                return;
+            }
+
+
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "DeleteCliente"
+            };
+
+            cmd.Parameters.Add(new SqlParameter("@CC", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@CC"].Value = clientCC;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+
+            cmd.Connection = cn;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro falha ao Editar Cliente \n ERROR MESSAGE: \n" + ex.Message);
+            }
+            finally
+            {
+                MessageBox.Show("Editado com sucesso");
+                cn.Close();
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            RemoveClient();
         }
 
         private void UpdateClient(Cliente client)
         {
             if (!verifySGBDConnection())
                 return;
+
             string nome = textBox4.Text;
             string apelido = textBox2.Text;
             string email = textBox6.Text;
             int clientCC = Int32.Parse(textBox5.Text);
             int telefone = Int32.Parse(textBox3.Text);
+
             SqlCommand cmd = new SqlCommand
             {
                 CommandType = CommandType.StoredProcedure,
@@ -217,9 +257,6 @@ namespace AgenciaViagens
             HideButtons();
             listBox2.Enabled = false;
         }
-
-     
-        
 
         private void button5_Click(object sender, EventArgs e)
         {
@@ -279,8 +316,6 @@ namespace AgenciaViagens
                     client.ClientCC = Convert.ToInt32(reader["CC"]);
                     listBox2.Items.Add(client);
                 }
-
-
 
                 currentClient = 0;
                 ShowClient();
@@ -393,5 +428,7 @@ namespace AgenciaViagens
         {
 
         }
+
+     
     }
 }
