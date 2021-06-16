@@ -190,13 +190,19 @@ namespace AgenciaViagens
             }
             finally
             {
-                MessageBox.Show("Editado com sucesso");
+                MessageBox.Show("Apagado com sucesso");
                 cn.Close();
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            currentClient = listBox2.SelectedIndex;
+            if (currentClient < 0)
+            {
+                MessageBox.Show("Seleciona um Cliente para remover");
+                return;
+            }
             RemoveClient();
         }
 
