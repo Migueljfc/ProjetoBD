@@ -7,12 +7,18 @@ namespace AgenciaViagens
 	[Serializable()]
 	class Cliente
 	{
+		private int _id;
 		private String _nome;
 		private String _apelido;
 		private String _email;
 		private int _CC;
 		private int _telefone;
 
+		public int ID
+        {
+			get { return _id; }
+			set { _id = value; }
+		}
 		public int ClientCC
 		{
 			get { return _CC; }

@@ -15,6 +15,8 @@ namespace AgenciaViagens
         private SqlConnection cn;
         private int currentClient;
         private bool adding;
+        private int lastClientID;
+    
 
         public Form2()
         {
@@ -25,13 +27,16 @@ namespace AgenciaViagens
         {
             loadClientsList();
             textBox1.Text = Form1.currentAdmin.ToString();
+            listBox2.SelectedIndex = listBox2.Items.Count-1;
+            lastClientID = Convert.ToInt32(textBox13.Text);
+
             cn = getSGBDConnection();
         }
 
         private SqlConnection getSGBDConnection()
         {
-            //return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            //return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
 
         private bool verifySGBDConnection()
@@ -66,6 +71,7 @@ namespace AgenciaViagens
             while (reader.Read())
             {
                 Cliente client = new Cliente();
+                client.ID = Convert.ToInt32(reader["ID"]);
                 client.ClientCC = Convert.ToInt32(reader["CC"]);
                 client.Nome = reader["nome"].ToString();
                 client.Apelido = reader["apelido"].ToString();
@@ -80,34 +86,62 @@ namespace AgenciaViagens
         }
 
 
-        private void CreateClient(Cliente C)
+        private void CreateClient(Cliente client)
         {
+           
             if (!verifySGBDConnection())
+            {
                 return;
-            SqlCommand cmd = new SqlCommand();
+            }
+            
+            string nome = client.Nome;
+            string apelido = client.Apelido;
+            string email = client.Email;
+            int clientCC = client.ClientCC;
+            int telefone = client.Telefone;
+            lastClientID = lastClientID + 1;
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "AddClient"
 
-            cmd.CommandText = "INSERT Cliente (CC, Nome, Apelido, Email, Telefone) " + "VALUES (@CC, @nome, @apelido, @email, @telefone) ";
+            };
+      
             cmd.Parameters.Clear();
-            cmd.Parameters.AddWithValue("@CC", C.ClientCC);
-            cmd.Parameters.AddWithValue("@nome", C.Nome);
-            cmd.Parameters.AddWithValue("@apelido", C.Apelido);
-            cmd.Parameters.AddWithValue("@email", C.Email);
-            cmd.Parameters.AddWithValue("@telefone", C.Telefone);
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@CC", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@nome", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@apelido", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@telefone", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@email", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = lastClientID;
+            cmd.Parameters["@CC"].Value = clientCC;
+            cmd.Parameters["@nome"].Value = nome;
+            cmd.Parameters["@apelido"].Value = apelido;
+            cmd.Parameters["@email"].Value = email;
+            cmd.Parameters["@telefone"].Value = telefone;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
             cmd.Connection = cn;
-
+            
             try
             {
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to update client in database. \n ERROR MESSAGE: \n" + ex.Message);
+                throw new Exception("Erro falha ao Criar Cliente \n ERROR MESSAGE: \n" + ex.Message);
             }
             finally
             {
+                
+                MessageBox.Show("Criado com sucesso");
                 cn.Close();
+                ClearFields();
+                loadClientsList();
             }
-        }
+        
+    }
 
         private bool SaveClient()
         {
@@ -129,13 +163,13 @@ namespace AgenciaViagens
             {
                 CreateClient(cliente);
                 listBox2.Items.Add(cliente);
-                Console.WriteLine("Create");
+                
             }
             else
             {
                 UpdateClient(cliente);
                 listBox2.Items[currentClient] = cliente;
-                Console.WriteLine("Update");
+               
             }
             return true;
         }
@@ -149,6 +183,7 @@ namespace AgenciaViagens
 
             Cliente client = new Cliente();
             client = (Cliente)listBox2.Items[currentClient];
+            textBox13.Text = client.ID.ToString();
             textBox4.Text = client.Nome;
             textBox2.Text = client.Apelido;
             textBox6.Text = client.Email;
@@ -159,7 +194,7 @@ namespace AgenciaViagens
 
         private void RemoveClient()
         {
-            int clientCC = Int32.Parse(textBox5.Text);
+            int clientid = Int32.Parse(textBox13.Text);
 
             if (!verifySGBDConnection())
             {
@@ -173,9 +208,9 @@ namespace AgenciaViagens
                 CommandText = "DeleteCliente"
             };
 
-            cmd.Parameters.Add(new SqlParameter("@CC", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
-            cmd.Parameters["@CC"].Value = clientCC;
+            cmd.Parameters["@ID"].Value = clientid;
             cmd.Parameters["@message"].Direction = ParameterDirection.Output;
 
             cmd.Connection = cn;
@@ -186,11 +221,16 @@ namespace AgenciaViagens
             }
             catch (Exception ex)
             {
-                throw new Exception("Erro falha ao Editar Cliente \n ERROR MESSAGE: \n" + ex.Message);
+                throw new Exception("Erro falha ao Remover Cliente \n ERROR MESSAGE: \n" + ex.Message);
             }
             finally
             {
+                loadClientsList();
                 MessageBox.Show("Apagado com sucesso");
+                if(clientid == lastClientID)
+                {
+                    lastClientID = lastClientID - 1;
+                }
                 cn.Close();
             }
         }
@@ -211,11 +251,11 @@ namespace AgenciaViagens
             if (!verifySGBDConnection())
                 return;
 
-            string nome = textBox4.Text;
-            string apelido = textBox2.Text;
-            string email = textBox6.Text;
-            int clientCC = Int32.Parse(textBox5.Text);
-            int telefone = Int32.Parse(textBox3.Text);
+            string nome = client.Nome;
+            string apelido = client.Apelido;
+            string email = client.Email;
+            int clientCC = client.ClientCC;
+            int telefone = client.Telefone;
 
             SqlCommand cmd = new SqlCommand
             {
@@ -367,10 +407,12 @@ namespace AgenciaViagens
             label5.Visible = false;
             label6.Visible = false;
             label7.Visible = false;
+            label16.Visible = false;
             textBox2.Visible = false;
             textBox3.Visible = false;
             textBox5.Visible = false;
             textBox6.Visible = false;
+            textBox13.Visible = false;
             button2.Visible = false;
             button4.Visible = false;
             button3.Visible = false;
@@ -390,10 +432,12 @@ namespace AgenciaViagens
             label5.Visible = true;
             label6.Visible = true;
             label7.Visible = true;
+            label16.Visible = true;
             textBox2.Visible = true;
             textBox3.Visible = true;
             textBox5.Visible = true;
             textBox6.Visible = true;
+            textBox13.Visible = true; 
             button2.Visible = true;
             button4.Visible = true;
             button3.Visible = true;
@@ -430,11 +474,6 @@ namespace AgenciaViagens
             System.Windows.Forms.Application.Exit();
         }
 
-        private void tabPage4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-     
+      
     }
 }
