@@ -35,8 +35,8 @@ namespace AgenciaViagens
 
         private SqlConnection getSGBDConnection()
         {
-            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            //return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            //return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
 
         private bool verifySGBDConnection()
@@ -141,7 +141,7 @@ namespace AgenciaViagens
                 loadClientsList();
             }
         
-    }
+        }
 
         private bool SaveClient()
         {
@@ -265,12 +265,14 @@ namespace AgenciaViagens
             };
 
             cmd.Parameters.Clear();
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@CC", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@nome", SqlDbType.VarChar));
             cmd.Parameters.Add(new SqlParameter("@apelido", SqlDbType.VarChar));
             cmd.Parameters.Add(new SqlParameter("@telefone", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@email", SqlDbType.VarChar));
             cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = Int32.Parse(textBox13.Text);
             cmd.Parameters["@CC"].Value = clientCC;
             cmd.Parameters["@nome"].Value = nome;
             cmd.Parameters["@apelido"].Value = apelido;

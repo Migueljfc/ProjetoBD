@@ -113,6 +113,7 @@
 --GO
 
 --CREATE PROC UpdateCliente
+--	@ID Int,
 --	@CC Int,
 --	@nome Varchar(20),
 --	@apelido Varchar(20),
@@ -126,8 +127,8 @@
 --		SET NOCOUNT ON
 --		BEGIN TRY
 --		UPDATE Cliente
---		SET nome = @nome, apelido = @apelido, telefone = @telefone, CC = @CC
---		WHERE CC = @CC 
+--		SET nome = @nome, apelido = @apelido, telefone = @telefone, CC = @CC, email = @email
+--		WHERE ID = @ID
 --		SET @message = 'Success'
 
 --	END TRY
