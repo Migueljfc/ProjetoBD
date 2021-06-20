@@ -14,9 +14,10 @@ namespace AgenciaViagens
 
         private SqlConnection cn;
         private int currentClient;
+        private int currentDestino;
         private bool adding;
         private int lastClientID;
-    
+        private int currentAdmin = Form1.currentAdmin;
 
         public Form2()
         {
@@ -26,7 +27,7 @@ namespace AgenciaViagens
         private void Form2_Load(object sender, EventArgs e)
         {
             loadClientsList();
-            textBox1.Text = Form1.currentAdmin.ToString();
+            textBox1.Text = currentAdmin.ToString();
             listBox2.SelectedIndex = listBox2.Items.Count-1;
             lastClientID = Convert.ToInt32(textBox13.Text);
 
@@ -35,8 +36,8 @@ namespace AgenciaViagens
 
         private SqlConnection getSGBDConnection()
         {
-            //return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            //return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
 
         private bool verifySGBDConnection()
@@ -57,14 +58,24 @@ namespace AgenciaViagens
                 currentClient = listBox2.SelectedIndex;
                 ShowClient();
             }
-
         }
-        private void loadClientsList()
+        private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
+
+            if (listBox3.SelectedIndex >= 0)
+            {
+                currentDestino = listBox3.SelectedIndex;
+                ShowDestino();
+            }
+        }
+        
+        private void loadClientsList()
+        { 
             if (!verifySGBDConnection())
                 return;
 
-            SqlCommand cmd = new SqlCommand("SELECT * FROM Cliente", cn);
+            SqlCommand cmd = new SqlCommand("SELECT * FROM Cliente WHERE FK_IdAdmin = @currentAdmin ", cn);
+            cmd.Parameters.AddWithValue("@currentAdmin", currentAdmin);
             SqlDataReader reader = cmd.ExecuteReader();
             listBox2.Items.Clear();
 
@@ -114,6 +125,7 @@ namespace AgenciaViagens
             cmd.Parameters.Add(new SqlParameter("@apelido", SqlDbType.VarChar));
             cmd.Parameters.Add(new SqlParameter("@telefone", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@email", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@FK_idAdmin", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
             cmd.Parameters["@ID"].Value = lastClientID;
             cmd.Parameters["@CC"].Value = clientCC;
@@ -121,6 +133,7 @@ namespace AgenciaViagens
             cmd.Parameters["@apelido"].Value = apelido;
             cmd.Parameters["@email"].Value = email;
             cmd.Parameters["@telefone"].Value = telefone;
+            cmd.Parameters["@FK_idAdmin"].Value = Int32.Parse(textBox1.Text);
             cmd.Parameters["@message"].Direction = ParameterDirection.Output;
             cmd.Connection = cn;
             
@@ -182,6 +195,23 @@ namespace AgenciaViagens
             }
 
             Cliente client = new Cliente();
+            client = (Cliente)listBox2.Items[currentClient];
+            textBox13.Text = client.ID.ToString();
+            textBox4.Text = client.Nome;
+            textBox2.Text = client.Apelido;
+            textBox6.Text = client.Email;
+            textBox5.Text = client.ClientCC.ToString();
+            textBox3.Text = client.Telefone.ToString();
+
+        }
+        private void ShowDestino()
+        {
+            if (listBox3.Items.Count == 0 | currentDestino < 0)
+            {
+                return;
+            }
+
+            Destino client = new Cliente();
             client = (Cliente)listBox2.Items[currentClient];
             textBox13.Text = client.ID.ToString();
             textBox4.Text = client.Nome;
@@ -357,12 +387,14 @@ namespace AgenciaViagens
                 while (reader.Read())
                 {
                     Cliente client = new Cliente();
+                    client.ID = Convert.ToInt32(reader["ID"]);
                     client.Nome = reader["nome"].ToString();
                     client.Apelido = reader["apelido"].ToString();
                     client.Telefone = Convert.ToInt32(reader["telefone"]);
                     client.Email = reader["email"].ToString();
                     client.ClientCC = Convert.ToInt32(reader["CC"]);
                     listBox2.Items.Add(client);
+                
                 }
 
                 currentClient = 0;
@@ -389,8 +421,7 @@ namespace AgenciaViagens
                 MessageBox.Show(ex.Message);
             }
             listBox2.Enabled = true;
-            //int idx = listBox2.FindString(textBox6.Text);
-            //listBox2.SelectedIndex = idx;
+          
             ShowButtons();
         }
         private void ClearFields()
@@ -476,6 +507,5 @@ namespace AgenciaViagens
             System.Windows.Forms.Application.Exit();
         }
 
-      
     }
 }
