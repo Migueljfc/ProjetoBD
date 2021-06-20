@@ -8,14 +8,14 @@ namespace AgenciaViagens
 	[Serializable()]
 	class Viagem
 	{
-		private String _ID;
-		private String _dataInicio;
-		private String _dataFim;
+		private int _ID;
+		private string _dataInicio;
+		private string _dataFim;
 		private int _precoTotal;
 		private int _numVagas;
 
 
-		public String ViagemID
+		public Int ViagemID
 		{
 			get { return _ID; }
 			set { _ID = value; }

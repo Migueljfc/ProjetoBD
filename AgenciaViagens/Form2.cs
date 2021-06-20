@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 
+
 namespace AgenciaViagens
 {
     public partial class Form2 : Form
@@ -95,7 +96,28 @@ namespace AgenciaViagens
             currentClient = 0;
             ShowClient();
         }
+        private void loadDestList()
+        {
+            if (!verifySGBDConnection())
+                return;
 
+            SqlCommand cmd = new SqlCommand("SELECT * FROM Destino", cn);
+            SqlDataReader reader = cmd.ExecuteReader();
+            listBox3.Items.Clear();
+
+            while (reader.Read())
+            {
+                Destino d = new Destino();
+                d.Pais= reader["pais"].ToString();
+                d.Cidade = reader["cidade"].ToString();
+                d.CodPostal = reader["codPostal"].ToString();
+                listBox3.Items.Add(d);
+            }
+            cn.Close();
+
+            currentDestino = 0;
+            ShowDestino();
+        }
 
         private void CreateClient(Cliente client)
         {
@@ -187,6 +209,67 @@ namespace AgenciaViagens
             return true;
         }
 
+        private bool SaveDestino()
+        {
+            Destino d = new Destino();
+            try
+            {
+                d.Pais = textBox14.Text;
+                d.Cidade = textBox15.Text;
+                d.CodPostal = textBox16.Text;
+                if (!verifySGBDConnection())
+                {
+                    return false;
+                }
+
+                string pais = d.Pais;
+                string cidade = d.Cidade;
+                string codpostal = d.CodPostal;
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "AddDestino"
+
+                };
+
+                cmd.Parameters.Clear();
+                cmd.Parameters.Add(new SqlParameter("@codPostal", SqlDbType.VarChar));
+                cmd.Parameters.Add(new SqlParameter("@pais", SqlDbType.VarChar));
+                cmd.Parameters.Add(new SqlParameter("@cidade", SqlDbType.VarChar));
+                cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+                cmd.Parameters["@pais"].Value = pais;
+                cmd.Parameters["@cidade"].Value = cidade;
+                cmd.Parameters["@codPostal"].Value = codpostal;
+                cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+                cmd.Connection = cn;
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Erro falha ao Criar Destino \n ERROR MESSAGE: \n" + ex.Message);
+                }
+                finally
+                {
+
+                    MessageBox.Show("Criado com sucesso");
+                    cn.Close();
+                    ClearFields();
+                    loadDestList();
+                }
+
+            }
+            
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
+            return true;
+        }
+
         private void ShowClient()
         {
             if(listBox2.Items.Count == 0 | currentClient < 0)
@@ -211,15 +294,11 @@ namespace AgenciaViagens
                 return;
             }
 
-            Destino client = new Cliente();
-            client = (Cliente)listBox2.Items[currentClient];
-            textBox13.Text = client.ID.ToString();
-            textBox4.Text = client.Nome;
-            textBox2.Text = client.Apelido;
-            textBox6.Text = client.Email;
-            textBox5.Text = client.ClientCC.ToString();
-            textBox3.Text = client.Telefone.ToString();
-
+            Destino d = new Destino();
+            d = (Destino)listBox3.Items[currentDestino];
+            textBox14.Text = d.Pais;
+            textBox15.Text = d.Cidade;
+            textBox16.Text = d.CodPostal;
         }
 
         private void RemoveClient()
