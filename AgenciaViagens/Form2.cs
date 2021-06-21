@@ -17,6 +17,7 @@ namespace AgenciaViagens
         private int currentClient;
         private int currentDestino;
         private bool adding;
+        private bool addingDest;
         private int lastClientID;
         private int currentAdmin = Form1.currentAdmin;
 
@@ -38,8 +39,8 @@ namespace AgenciaViagens
 
         private SqlConnection getSGBDConnection()
         {
-            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            //return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            //return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
 
         private bool verifySGBDConnection()
@@ -617,6 +618,26 @@ namespace AgenciaViagens
         {
             System.Windows.Forms.Application.Exit();
         }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            ClearFields();
+            HideButtonsDest();
+            listBox3.Enabled = false;
+
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveDestino();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            listBox3.Enabled = true;
 
         private void button11_Click(object sender, EventArgs e)
         {
