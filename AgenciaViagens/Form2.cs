@@ -28,6 +28,7 @@ namespace AgenciaViagens
         private void Form2_Load(object sender, EventArgs e)
         {
             loadClientsList();
+            loadDestList();
             textBox1.Text = currentAdmin.ToString();
             listBox2.SelectedIndex = listBox2.Items.Count-1;
             lastClientID = Convert.ToInt32(textBox13.Text);
@@ -300,7 +301,7 @@ namespace AgenciaViagens
             textBox15.Text = d.Cidade;
             textBox16.Text = d.CodPostal;
         }
-
+        
         private void RemoveClient()
         {
             int clientid = Int32.Parse(textBox13.Text);
@@ -510,6 +511,10 @@ namespace AgenciaViagens
             textBox6.Text = "";
             textBox5.Text = "";
             textBox3.Text = "";
+            textBox14.Text = " ";
+            textBox15.Text = " ";
+            textBox16.Text = " ";
+
         }
 
         private void ShowButtonSearch()
@@ -581,10 +586,48 @@ namespace AgenciaViagens
             button9.Visible = false;
         }
 
+        private void ShowCriarDestino()
+        {
+            button11.Visible = false;
+            button12.Visible = false;
+            button13.Visible = false;
+
+            button14.Visible = true;
+            button15.Visible = true;
+            
+        }
+        private void HideCriarDestino()
+        {
+            button11.Visible = true;
+            button12.Visible = true;
+            button13.Visible = true;
+
+            button14.Visible = false;
+            button15.Visible = false;
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            SaveDestino();
+            loadDestList();
+            HideCriarDestino();
+        }
+
         private void button10_Click(object sender, EventArgs e)
         {
             System.Windows.Forms.Application.Exit();
         }
 
+        private void button11_Click(object sender, EventArgs e)
+        {
+            ShowCriarDestino();
+            ClearFields();
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            HideCriarDestino();
+            ClearFields();
+        }
     }
 }

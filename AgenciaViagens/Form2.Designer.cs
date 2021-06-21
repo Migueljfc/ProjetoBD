@@ -449,6 +449,8 @@ namespace AgenciaViagens
             this.button15.TabIndex = 40;
             this.button15.Text = "Cancel";
             this.button15.UseVisualStyleBackColor = true;
+            this.button15.Visible = false;
+            this.button15.Click += new System.EventHandler(this.button15_Click);
             // 
             // button14
             // 
@@ -458,6 +460,8 @@ namespace AgenciaViagens
             this.button14.TabIndex = 39;
             this.button14.Text = "OK";
             this.button14.UseVisualStyleBackColor = true;
+            this.button14.Visible = false;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // button13
             // 
@@ -486,6 +490,7 @@ namespace AgenciaViagens
             this.button11.TabIndex = 36;
             this.button11.Text = "Criar";
             this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
             // textBox16
             // 

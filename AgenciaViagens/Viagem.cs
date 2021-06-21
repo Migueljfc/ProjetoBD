@@ -15,7 +15,7 @@ namespace AgenciaViagens
 		private int _numVagas;
 
 
-		public Int ViagemID
+		public int ViagemID
 		{
 			get { return _ID; }
 			set { _ID = value; }

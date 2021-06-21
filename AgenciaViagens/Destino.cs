@@ -55,6 +55,9 @@ namespace AgenciaViagens
 				_codPostal = value;
 			}
 		}
-
+		public override String ToString()
+		{
+			return _pais + " | " + _cidade + " | " + _codPostal;
+		}
 	}
 }

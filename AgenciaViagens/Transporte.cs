@@ -14,12 +14,12 @@ namespace AgenciaViagens
         private string _companhia;
         private int _numPassageiros;
 
-		public Int TransID
+		public int TransID
 		{
 			get { return _ID; }
 			set
 			{
-				if (value == null | String.IsNullOrEmpty(value))
+				if (value == null )
 				{
 					throw new Exception("O transporte tem que ter um ID.");
 					return;
@@ -43,12 +43,12 @@ namespace AgenciaViagens
 			}
 		}
 
-		public Int Preco
+		public int Preco
 		{
 			get { return _preco; }
 			set
 			{
-				if (value == null | String.IsNullOrEmpty(value))
+				if (value == null)
 				{
 					throw new Exception("O transporte tem que ter um preço.");
 					return;
@@ -85,12 +85,12 @@ namespace AgenciaViagens
 			}
 		}
 
-		public Int NumPassageiros
+		public int NumPassageiros
 		{
 			get { return _numPassageiros; }
 			set
 			{
-				if (value == null | String.IsNullOrEmpty(value))
+				if (value == null )
 				{
 					throw new Exception("O transporte tem que ter um numero de passageiros.");
 					return;

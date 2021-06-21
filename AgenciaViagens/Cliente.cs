@@ -76,7 +76,7 @@ namespace AgenciaViagens
 
 		public override String ToString()
 		{
-			return _nome + " " + _apelido + " " + _CC;
+			return _nome + " " + _apelido + " CC: " + _CC;
 		}
 	}
 }
