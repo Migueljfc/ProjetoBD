@@ -7,11 +7,24 @@ namespace AgenciaViagens
 	[Serializable()]
 	class Destino
 	{
-
+		private int _id;
 		private string _pais;
 		private string _cidade;
 		private string _codPostal;
 
+		public int ID
+        {
+			get { return _id; }
+			set
+			{
+				if (value == null)
+				{
+					throw new Exception("O destino tem que ter um pais.");
+					return;
+				}
+				_id = value;
+			}
+		}
 
 		public String Pais
 		{

@@ -16,8 +16,15 @@ namespace AgenciaViagens
         private SqlConnection cn;
         private int currentClient;
         private int currentDestino;
+        private int currentAlojamento;
+        private int currentTransporte;
+        private int currentViagem;
         private bool adding;
-        private bool addingDest;
+        private int  selectedDestino;
+        private int selectedAlojamento;
+        private int precoTrans;
+        private int precoAloj;
+        private int selectedTransporte;
         private int lastClientID;
         private int currentAdmin = Form1.currentAdmin;
 
@@ -30,17 +37,23 @@ namespace AgenciaViagens
         {
             loadClientsList();
             loadDestList();
+            loadAlojList();
+            loadTransList();
             textBox1.Text = currentAdmin.ToString();
             listBox2.SelectedIndex = listBox2.Items.Count-1;
-            lastClientID = Convert.ToInt32(textBox13.Text);
+            if(listBox2.SelectedIndex >= 0)
+            {
+
+                lastClientID = Convert.ToInt32(textBox13.Text);
+            }
 
             cn = getSGBDConnection();
         }
 
         private SqlConnection getSGBDConnection()
         {
-            //return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            //return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
 
         private bool verifySGBDConnection()
@@ -54,6 +67,14 @@ namespace AgenciaViagens
             return cn.State == ConnectionState.Open;
         }
 
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex >= 0)
+            {
+                currentViagem = listBox2.SelectedIndex;
+                ShowViagem();
+            }
+        }
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBox2.SelectedIndex >= 0)
@@ -71,7 +92,27 @@ namespace AgenciaViagens
                 ShowDestino();
             }
         }
-        
+
+        private void listBox4_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            if (listBox4.SelectedIndex >= 0)
+            {
+                currentAlojamento = listBox4.SelectedIndex;
+                ShowAlojamento();
+            }
+        }
+
+        private void listBox5_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            if (listBox5.SelectedIndex >= 0)
+            {
+                currentTransporte = listBox5.SelectedIndex;
+                ShowTransporte();
+            }
+        }
+
         private void loadClientsList()
         { 
             if (!verifySGBDConnection())
@@ -110,6 +151,7 @@ namespace AgenciaViagens
             while (reader.Read())
             {
                 Destino d = new Destino();
+                d.ID = Convert.ToInt32(reader["ID"]);
                 d.Pais= reader["pais"].ToString();
                 d.Cidade = reader["cidade"].ToString();
                 d.CodPostal = reader["codPostal"].ToString();
@@ -119,6 +161,56 @@ namespace AgenciaViagens
 
             currentDestino = 0;
             ShowDestino();
+        }
+        private void loadAlojList()
+        {
+            if (!verifySGBDConnection())
+                return;
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM Alojamento", cn);
+            SqlDataReader reader = cmd.ExecuteReader();
+            listBox4.Items.Clear();
+
+            while (reader.Read())
+            {
+                Alojamento aloj = new Alojamento();
+                aloj.AlojID = Convert.ToInt32(reader["ID"]);
+                aloj.Tipo = reader["tipo"].ToString();
+                aloj.Nome = reader["nome"].ToString();
+                aloj.Preco = Convert.ToInt32(reader["preco"]);
+                listBox4.Items.Add(aloj);
+            }
+            cn.Close();
+
+            currentAlojamento = 0;
+            ShowAlojamento();
+        }
+
+        private void loadTransList()
+        {
+            if (!verifySGBDConnection())
+                return;
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM Transporte", cn);
+            SqlDataReader reader = cmd.ExecuteReader();
+            listBox5.Items.Clear();
+
+            while (reader.Read())
+            {
+                Transporte t = new Transporte();
+                t.TransID = Convert.ToInt32(reader["ID"]);
+                t.Tipo = reader["tipo"].ToString();
+                t.Companhia = reader["companhia"].ToString();
+                t.Preco = Convert.ToInt32(reader["preco"]);
+                t.NumPassageiros  = Convert.ToInt32(reader["numPassageiros"]);
+                t.DataPartida = reader["dataPartida"].ToString();
+                t.DataChegada = reader["dataChegada"].ToString();
+                listBox5.Items.Add(t);
+            }
+            cn.Close();
+
+            currentTransporte = 0;
+            ShowTransporte();
         }
 
         private void CreateClient(Cliente client)
@@ -211,66 +303,225 @@ namespace AgenciaViagens
             return true;
         }
 
-        private bool SaveDestino()
+        private void SaveDestino(Destino d)
         {
-            Destino d = new Destino();
+            
+            if (!verifySGBDConnection())
+            {
+                return ;
+            }
+            int id = d.ID;
+            string pais = d.Pais;
+            string cidade = d.Cidade;
+            string codpostal = d.CodPostal;
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "AddDestino"
+
+            };
+
+            cmd.Parameters.Clear();
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@codPostal", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@pais", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@cidade", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = id;
+            cmd.Parameters["@pais"].Value = pais;
+            cmd.Parameters["@cidade"].Value = cidade;
+            cmd.Parameters["@codPostal"].Value = codpostal;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+            cmd.Connection = cn;
+
             try
             {
-                d.Pais = textBox14.Text;
-                d.Cidade = textBox15.Text;
-                d.CodPostal = textBox16.Text;
-                if (!verifySGBDConnection())
-                {
-                    return false;
-                }
-
-                string pais = d.Pais;
-                string cidade = d.Cidade;
-                string codpostal = d.CodPostal;
-                SqlCommand cmd = new SqlCommand
-                {
-                    CommandType = CommandType.StoredProcedure,
-                    CommandText = "AddDestino"
-
-                };
-
-                cmd.Parameters.Clear();
-                cmd.Parameters.Add(new SqlParameter("@codPostal", SqlDbType.VarChar));
-                cmd.Parameters.Add(new SqlParameter("@pais", SqlDbType.VarChar));
-                cmd.Parameters.Add(new SqlParameter("@cidade", SqlDbType.VarChar));
-                cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
-                cmd.Parameters["@pais"].Value = pais;
-                cmd.Parameters["@cidade"].Value = cidade;
-                cmd.Parameters["@codPostal"].Value = codpostal;
-                cmd.Parameters["@message"].Direction = ParameterDirection.Output;
-                cmd.Connection = cn;
-
-                try
-                {
-                    cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Erro falha ao Criar Destino \n ERROR MESSAGE: \n" + ex.Message);
-                }
-                finally
-                {
-
-                    MessageBox.Show("Criado com sucesso");
-                    cn.Close();
-                    ClearFields();
-                    loadDestList();
-                }
-
+                cmd.ExecuteNonQuery();
             }
-            
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
-                return false;
+                throw new Exception("Erro falha ao Criar Destino \n ERROR MESSAGE: \n" + ex.Message);
             }
-            return true;
+            finally
+            {
+
+                MessageBox.Show("Criado com sucesso");
+                cn.Close();
+                ClearFields();
+                listBox3.Items.Add(d);
+                loadDestList();
+            }
+
         }
+
+        private void SaveViagem(Destino d)
+        {
+
+            if (!verifySGBDConnection())
+            {
+                return;
+            }
+            int id = d.ID;
+            string pais = d.Pais;
+            string cidade = d.Cidade;
+            string codpostal = d.CodPostal;
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "AddDestino"
+
+            };
+
+            cmd.Parameters.Clear();
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@codPostal", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@pais", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@cidade", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = id;
+            cmd.Parameters["@pais"].Value = pais;
+            cmd.Parameters["@cidade"].Value = cidade;
+            cmd.Parameters["@codPostal"].Value = codpostal;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+            cmd.Connection = cn;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro falha ao Criar Destino \n ERROR MESSAGE: \n" + ex.Message);
+            }
+            finally
+            {
+
+                MessageBox.Show("Criado com sucesso");
+                cn.Close();
+                ClearFields();
+                listBox3.Items.Add(d);
+                loadDestList();
+            }
+
+        }
+
+        private void SaveAlojamento(Alojamento aloj)
+        {
+            if (!verifySGBDConnection())
+            {
+                return;
+            }
+            int id = aloj.AlojID;
+            string nome = aloj.Nome;
+            string tipo = aloj.Tipo;
+            int preco = aloj.Preco;
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "AddAlojamento"
+
+            };
+
+            cmd.Parameters.Clear();
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@nome", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@tipo", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@preco", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_Dest", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_Tem2", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = id;
+            cmd.Parameters["@nome"].Value = nome;
+            cmd.Parameters["@tipo"].Value = tipo;
+            cmd.Parameters["@FK_Dest"].Value = selectedDestino;
+            cmd.Parameters["@FK_Tem2"].Value = selectedDestino;
+            cmd.Parameters["@preco"].Value = preco;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+            cmd.Connection = cn;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro falha ao Criar Alojamento \n ERROR MESSAGE: \n" + ex.Message);
+            }
+            finally
+            {
+
+                MessageBox.Show("Criado com sucesso");
+                cn.Close();
+                ClearFields();
+                listBox4.Items.Add(aloj);
+                loadAlojList();
+            }
+        }
+
+        private void SaveTransporte(Transporte t)
+        {
+            if (!verifySGBDConnection())
+            {
+                return;
+            }
+            int id = t.TransID;
+            string companhia = t.Companhia;
+            string dataPartida = t.DataPartida;
+            string dataChegada = t.DataChegada;
+            int numPassageiros = t.NumPassageiros;
+            string tipo = t.Tipo;
+            int preco = t.Preco;
+            System.Diagnostics.Debug.WriteLine(dataPartida);
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "AddTransporte"
+
+            };
+
+            cmd.Parameters.Clear();
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@numPassageiros", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@companhia", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@dataPartida", SqlDbType.Date));
+            cmd.Parameters.Add(new SqlParameter("@dataChegada", SqlDbType.Date));
+            cmd.Parameters.Add(new SqlParameter("@tipo", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@preco", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_Dest", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_Tem", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = id;
+            cmd.Parameters["@numPassageiros"].Value = numPassageiros;
+            cmd.Parameters["@companhia"].Value = companhia;
+            cmd.Parameters["@tipo"].Value = tipo;
+            cmd.Parameters["@dataPartida"].Value = dataPartida;
+            cmd.Parameters["@dataChegada"].Value = dataChegada;
+            cmd.Parameters["@FK_Dest"].Value = selectedAlojamento;
+            cmd.Parameters["@FK_Tem"].Value = selectedAlojamento;
+            cmd.Parameters["@preco"].Value = preco;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+            cmd.Connection = cn;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro falha ao Criar Alojamento \n ERROR MESSAGE: \n" + ex.Message);
+            }
+            finally
+            {
+
+                MessageBox.Show("Criado com sucesso");
+                cn.Close();
+                ClearFields();
+                listBox5.Items.Add(t);
+                loadTransList();
+            }
+        }
+
+
 
         private void ShowClient()
         {
@@ -298,11 +549,57 @@ namespace AgenciaViagens
 
             Destino d = new Destino();
             d = (Destino)listBox3.Items[currentDestino];
+            textBox21.Text = d.ID.ToString();
             textBox14.Text = d.Pais;
             textBox15.Text = d.Cidade;
             textBox16.Text = d.CodPostal;
         }
-        
+
+        private void ShowAlojamento()
+        {
+
+            if (listBox4.Items.Count == 0 | currentAlojamento < 0)
+            {
+                return;
+            }
+            Alojamento aloj = new Alojamento();
+            aloj = (Alojamento)listBox4.Items[currentAlojamento];
+            textBox17.Text = aloj.AlojID.ToString();
+            textBox11.Text = aloj.Preco.ToString();
+            textBox10.Text = aloj.Nome;
+            comboBox1.Text = aloj.Tipo;
+        }
+
+        private void ShowTransporte()
+        {
+
+            if (listBox5.Items.Count == 0 | currentTransporte < 0)
+            {
+                return;
+            }
+            Transporte t = new Transporte();
+            t = (Transporte)listBox5.Items[currentTransporte];
+            textBox18.Text = t.TransID.ToString();
+            textBox20.Text = t.NumPassageiros.ToString();
+            dateTimePicker4.Text = t.DataPartida.ToString();
+            dateTimePicker3.Text = t.DataChegada.ToString();
+            textBox19.Text = t.NumPassageiros.ToString();
+            comboBox2.Text = t.Tipo.ToString();
+            textBox9.Text = t.Preco.ToString();
+        }
+
+        private void ShowViagem()
+        {
+
+            if (listBox1.Items.Count == 0 | currentViagem < 0)
+            {
+                return;
+            }
+            Viagem v = new Viagem();
+            v = (Viagem)listBox1.Items[currentViagem];
+            textBox7.Text = v.ViagemID.ToString();
+            textBox8.Text = v.PrecoTotal.ToString();
+        }
         private void RemoveClient()
         {
             int clientid = Int32.Parse(textBox13.Text);
@@ -356,7 +653,93 @@ namespace AgenciaViagens
             }
             RemoveClient();
         }
+        private void button12_Click(object sender, EventArgs e)
+        {
+            currentDestino= listBox3.SelectedIndex;
+            if (currentDestino < 0)
+            {
+                MessageBox.Show("Seleciona um Destino para remover");
+                return;
+            }
+            RemoveDestino();
+        }
 
+        private void RemoveDestino()
+        {
+            
+
+            if (!verifySGBDConnection())
+            {
+                return;
+            }
+
+
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "DeleteDestino"
+            };
+
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = Convert.ToInt32(textBox21.Text);
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+
+            cmd.Connection = cn;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro falha ao Remover Destino \n ERROR MESSAGE: \n" + ex.Message);
+            }
+            finally
+            {
+                loadDestList();
+                MessageBox.Show("Apagado com sucesso");
+                cn.Close();
+            }
+        }
+
+        private void RemoveAlojamento()
+        {
+            
+            if (!verifySGBDConnection())
+            {
+                return;
+            }
+
+
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "DeleteAlojamento"
+            };
+
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = Convert.ToInt32(textBox17.Text); ;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+
+            cmd.Connection = cn;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro falha ao Remover Alojamento \n ERROR MESSAGE: \n" + ex.Message);
+            }
+            finally
+            {
+                loadAlojList();
+                MessageBox.Show("Apagado com sucesso");
+                cn.Close();
+            }
+        }
         private void UpdateClient(Cliente client)
         {
             if (!verifySGBDConnection())
@@ -515,6 +898,11 @@ namespace AgenciaViagens
             textBox14.Text = " ";
             textBox15.Text = " ";
             textBox16.Text = " ";
+            textBox21.Text = " ";
+            textBox10.Text = " ";
+            textBox11.Text = " ";
+            textBox17.Text = " ";
+            comboBox1.Text = " ";
 
         }
 
@@ -592,6 +980,7 @@ namespace AgenciaViagens
             button11.Visible = false;
             button12.Visible = false;
             button13.Visible = false;
+            button26.Visible = false;
 
             button14.Visible = true;
             button15.Visible = true;
@@ -602,16 +991,68 @@ namespace AgenciaViagens
             button11.Visible = true;
             button12.Visible = true;
             button13.Visible = true;
+            button26.Visible = true;
 
             button14.Visible = false;
             button15.Visible = false;
         }
 
+        private void ShowCriarAlojamento()
+        {
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = false;
+            button27.Visible = false;
+
+            button16.Visible = true;
+            button17.Visible = true;
+        }
+        private void HideCriarAlojamento()
+        {
+            button18.Visible = true;
+            button19.Visible = true;
+            button20.Visible = true;
+            button27.Visible = true;
+
+            button16.Visible = false;
+            button17.Visible = false;
+        }
+
+        private void ShowCriarTransporte()
+        {
+            button24.Visible = false;
+            button25.Visible = false;
+            button28.Visible = false;
+            button23.Visible = false;
+
+            button21.Visible = true;
+            button22.Visible = true;
+        }
+        private void HideCriarTransporte()
+        {
+            button24.Visible = true;
+            button25.Visible = true;
+            button28.Visible = true;
+            button23.Visible = true;
+
+            button21.Visible = false;
+            button22.Visible = false;
+        }
+
         private void button14_Click(object sender, EventArgs e)
         {
-            SaveDestino();
+            Destino d = new Destino();
+
+            d.ID = Convert.ToInt32(textBox21.Text);
+            d.Pais = textBox14.Text;
+            d.Cidade = textBox15.Text;
+            d.CodPostal = textBox16.Text;
+            //System.Diagnostics.Debug.WriteLine(d);
+            SaveDestino(d);
+            ShowDestino();
             loadDestList();
             HideCriarDestino();
+            listBox3.Enabled = true;
         }
 
         private void button10_Click(object sender, EventArgs e)
@@ -622,33 +1063,136 @@ namespace AgenciaViagens
         private void button11_Click(object sender, EventArgs e)
         {
             ClearFields();
-            HideButtonsDest();
+            ShowCriarDestino();
             listBox3.Enabled = false;
 
-        }
-
-        private void button14_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                SaveDestino();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            listBox3.Enabled = true;
-
-        private void button11_Click(object sender, EventArgs e)
-        {
-            ShowCriarDestino();
-            ClearFields();
         }
 
         private void button15_Click(object sender, EventArgs e)
         {
             HideCriarDestino();
             ClearFields();
+            listBox3.Enabled = true;
+        }
+
+        private void button26_Click(object sender, EventArgs e)
+        {
+            if(listBox3.SelectedIndex >= 0)
+            {
+                MessageBox.Show("Adicionado à viagem");
+                selectedDestino = Convert.ToInt32(textBox21.Text);
+                textBox22.Text = selectedDestino.ToString();
+            }
+            else
+            {
+                MessageBox.Show("Tem de selecionar um destino na lista");
+            }
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            
+            Alojamento aloj = new Alojamento();
+
+            aloj.AlojID = Convert.ToInt32(textBox17.Text);
+            aloj.Nome= textBox10.Text;
+            aloj.Preco = Convert.ToInt32(textBox11.Text);
+            aloj.Tipo = comboBox1.Text;
+            //System.Diagnostics.Debug.WriteLine(d);
+            SaveAlojamento(aloj);
+            ShowAlojamento();
+            loadAlojList();
+            HideCriarAlojamento();
+            listBox4.Enabled = true;
+            
+        }
+
+        private void button20_Click(object sender, EventArgs e)
+        {
+
+            ClearFields();
+            ShowCriarAlojamento();
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            HideCriarAlojamento();
+            
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            currentAlojamento = listBox4.SelectedIndex;
+            if (currentAlojamento < 0)
+            {
+                MessageBox.Show("Seleciona um Destino para remover");
+                return;
+            }
+            RemoveAlojamento();
+        }
+
+        private void button27_Click(object sender, EventArgs e)
+        {
+            if (listBox4.SelectedIndex >= 0)
+            {
+                MessageBox.Show("Adicionado à viagem");
+                selectedAlojamento = Convert.ToInt32(textBox17.Text);
+                textBox12.Text = selectedDestino.ToString();
+                precoAloj = Convert.ToInt32(textBox11.Text);
+                textBox8.Text = precoAloj.ToString();
+            }
+            else
+            {
+                MessageBox.Show("Tem de selecionar um Alojamento na lista");
+            }
+        }
+
+        private void button25_Click(object sender, EventArgs e)
+        {
+            ShowCriarTransporte();
+        }
+
+        private void button22_Click(object sender, EventArgs e)
+        {
+            Transporte t = new Transporte();
+
+            t.TransID = Convert.ToInt32(textBox18.Text);
+            t.DataPartida = dateTimePicker4.Text;
+            t.DataChegada = dateTimePicker3.Text;
+            t.Preco = Convert.ToInt32(textBox9.Text);
+            t.Tipo = comboBox2.Text;
+            t.Companhia = textBox19.Text;
+            t.NumPassageiros = Convert.ToInt32(textBox20.Text);
+
+            //System.Diagnostics.Debug.WriteLine(d);
+            SaveTransporte(t);
+            ShowTransporte();
+            loadTransList();
+            HideCriarTransporte();
+            listBox4.Enabled = true;
+        }
+
+        private void button21_Click(object sender, EventArgs e)
+        {
+            HideCriarTransporte();
+        }
+
+        private void button28_Click(object sender, EventArgs e)
+        {
+            if (listBox5.SelectedIndex >= 0)
+            {
+                MessageBox.Show("Adicionado à viagem");
+                selectedTransporte = Convert.ToInt32(textBox18.Text);
+                textBox23.Text = selectedDestino.ToString();
+                precoTrans = Convert.ToInt32(textBox9.Text);
+                precoTrans = precoAloj + precoTrans;
+                textBox8.Text = precoTrans.ToString();
+            }
+            else
+            {
+                MessageBox.Show("Tem de selecionar um Transporte na lista");
+            }
         }
     }
+    
 }

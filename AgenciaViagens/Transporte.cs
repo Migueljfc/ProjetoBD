@@ -113,5 +113,9 @@ namespace AgenciaViagens
 				_companhia = value;
 			}
 		}
+		public override String ToString()
+		{
+			return _companhia + " " + _tipo;
+		}
 	}
 }
