@@ -52,8 +52,8 @@ namespace AgenciaViagens
 
         private SqlConnection getSGBDConnection()
         {
-            //return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            //return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
 
         private bool verifySGBDConnection()
@@ -80,6 +80,7 @@ namespace AgenciaViagens
             if (listBox2.SelectedIndex >= 0)
             {
                 currentClient = listBox2.SelectedIndex;
+              
                 ShowClient();
             }
         }
@@ -89,13 +90,12 @@ namespace AgenciaViagens
             if (listBox3.SelectedIndex >= 0)
             {
                 currentDestino = listBox3.SelectedIndex;
+                System.Diagnostics.Debug.WriteLine(currentDestino);
                 ShowDestino();
             }
         }
-
         private void listBox4_SelectedIndexChanged(object sender, EventArgs e)
         {
-
             if (listBox4.SelectedIndex >= 0)
             {
                 currentAlojamento = listBox4.SelectedIndex;
@@ -337,6 +337,7 @@ namespace AgenciaViagens
             try
             {
                 cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
             }
             catch (Exception ex)
             {
@@ -345,7 +346,7 @@ namespace AgenciaViagens
             finally
             {
 
-                MessageBox.Show("Criado com sucesso");
+               
                 cn.Close();
                 ClearFields();
                 listBox3.Items.Add(d);
@@ -388,6 +389,7 @@ namespace AgenciaViagens
             try
             {
                 cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
             }
             catch (Exception ex)
             {
@@ -396,7 +398,7 @@ namespace AgenciaViagens
             finally
             {
 
-                MessageBox.Show("Criado com sucesso");
+               
                 cn.Close();
                 ClearFields();
                 listBox3.Items.Add(d);
@@ -441,15 +443,15 @@ namespace AgenciaViagens
             try
             {
                 cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
             }
             catch (Exception ex)
             {
-                throw new Exception("Erro falha ao Criar Alojamento \n ERROR MESSAGE: \n" + ex.Message);
+                throw new Exception("Erro falha ao Criar Alojamento \n ERROR MESSAGE: \n");
             }
             finally
             {
 
-                MessageBox.Show("Criado com sucesso");
                 cn.Close();
                 ClearFields();
                 listBox4.Items.Add(aloj);
@@ -502,6 +504,7 @@ namespace AgenciaViagens
             try
             {
                 cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
             }
             catch (Exception ex)
             {
@@ -510,7 +513,7 @@ namespace AgenciaViagens
             finally
             {
 
-                MessageBox.Show("Criado com sucesso");
+               
                 cn.Close();
                 ClearFields();
                 listBox5.Items.Add(t);
@@ -580,7 +583,7 @@ namespace AgenciaViagens
             textBox20.Text = t.NumPassageiros.ToString();
             dateTimePicker4.Text = t.DataPartida.ToString();
             dateTimePicker3.Text = t.DataChegada.ToString();
-            textBox19.Text = t.NumPassageiros.ToString();
+            textBox19.Text = t.Companhia.ToString();
             comboBox2.Text = t.Tipo.ToString();
             textBox9.Text = t.Preco.ToString();
         }
@@ -623,6 +626,7 @@ namespace AgenciaViagens
             try
             {
                 cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
             }
             catch (Exception ex)
             {
@@ -631,11 +635,48 @@ namespace AgenciaViagens
             finally
             {
                 loadClientsList();
-                MessageBox.Show("Apagado com sucesso");
                 if(clientid == lastClientID)
                 {
                     lastClientID = lastClientID - 1;
                 }
+                cn.Close();
+            }
+        }
+
+        private void RemoveTransporte()
+        {
+            if (!verifySGBDConnection())
+            {
+                return;
+            }
+
+
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "DeleteTransporte"
+            };
+
+            cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
+            cmd.Parameters["@ID"].Value = textBox18.Text;
+            cmd.Parameters["@message"].Direction = ParameterDirection.Output;
+
+            cmd.Connection = cn;
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro falha ao Remover Transporte \n ERROR MESSAGE: \n" + ex.Message);
+            }
+            finally
+            {
+                loadTransList();
+              
                 cn.Close();
             }
         }
@@ -687,6 +728,7 @@ namespace AgenciaViagens
             try
             {
                 cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
             }
             catch (Exception ex)
             {
@@ -695,7 +737,6 @@ namespace AgenciaViagens
             finally
             {
                 loadDestList();
-                MessageBox.Show("Apagado com sucesso");
                 cn.Close();
             }
         }
@@ -717,7 +758,7 @@ namespace AgenciaViagens
 
             cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
-            cmd.Parameters["@ID"].Value = Convert.ToInt32(textBox17.Text); ;
+            cmd.Parameters["@ID"].Value = Convert.ToInt32(textBox17.Text); 
             cmd.Parameters["@message"].Direction = ParameterDirection.Output;
 
             cmd.Connection = cn;
@@ -725,6 +766,7 @@ namespace AgenciaViagens
             try
             {
                 cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
             }
             catch (Exception ex)
             {
@@ -733,7 +775,6 @@ namespace AgenciaViagens
             finally
             {
                 loadAlojList();
-                MessageBox.Show("Apagado com sucesso");
                 cn.Close();
             }
         }
@@ -775,6 +816,7 @@ namespace AgenciaViagens
             try
             {
                 cmd.ExecuteNonQuery();
+                MessageBox.Show(cmd.Parameters["@message"].Value.ToString());
             }
             catch (Exception ex)
             {
@@ -782,7 +824,7 @@ namespace AgenciaViagens
             }
             finally
             {
-                MessageBox.Show("Editado com sucesso");
+                
                 cn.Close();
             }
         }
@@ -885,6 +927,7 @@ namespace AgenciaViagens
           
             ShowButtons();
         }
+
         private void ClearFields()
         {
             textBox4.Text = "";
@@ -892,14 +935,25 @@ namespace AgenciaViagens
             textBox6.Text = "";
             textBox5.Text = "";
             textBox3.Text = "";
-            textBox14.Text = " ";
-            textBox15.Text = " ";
-            textBox16.Text = " ";
-            textBox21.Text = " ";
-            textBox10.Text = " ";
-            textBox11.Text = " ";
-            textBox17.Text = " ";
-            comboBox1.Text = " ";
+            textBox14.Text = "";
+            textBox15.Text = "";
+            textBox16.Text = "";
+            textBox21.Text = "";
+            textBox10.Text = "";
+            textBox11.Text = "";
+            textBox17.Text = "";
+            comboBox1.Text = "";
+            textBox17.Text = "";
+            textBox11.Text = "";
+            textBox10.Text = "";
+            comboBox1.Text = "";
+            textBox18.Text = "";
+            textBox20.Text = "";
+            dateTimePicker4.Text = "";
+            dateTimePicker3.Text = "";
+            textBox19.Text = "";
+            comboBox2.Text = "";
+            textBox9.Text = "";
 
         }
 
@@ -1100,6 +1154,7 @@ namespace AgenciaViagens
             ShowAlojamento();
             loadAlojList();
             HideCriarAlojamento();
+            ClearFields();
             listBox4.Enabled = true;
             
         }
@@ -1134,7 +1189,7 @@ namespace AgenciaViagens
             {
                 MessageBox.Show("Adicionado à viagem");
                 selectedAlojamento = Convert.ToInt32(textBox17.Text);
-                textBox12.Text = selectedDestino.ToString();
+                textBox12.Text = selectedAlojamento.ToString();
                 precoAloj = Convert.ToInt32(textBox11.Text);
                 textBox8.Text = precoAloj.ToString();
             }
@@ -1166,6 +1221,7 @@ namespace AgenciaViagens
             ShowTransporte();
             loadTransList();
             HideCriarTransporte();
+            ClearFields();
             listBox4.Enabled = true;
         }
 
@@ -1180,7 +1236,7 @@ namespace AgenciaViagens
             {
                 MessageBox.Show("Adicionado à viagem");
                 selectedTransporte = Convert.ToInt32(textBox18.Text);
-                textBox23.Text = selectedDestino.ToString();
+                textBox23.Text = selectedTransporte.ToString();
                 precoTrans = Convert.ToInt32(textBox9.Text);
                 precoTrans = precoAloj + precoTrans;
                 textBox8.Text = precoTrans.ToString();
@@ -1191,9 +1247,10 @@ namespace AgenciaViagens
             }
         }
 
-        private void listBox4_SelectedIndexChanged_1(object sender, EventArgs e)
+        private void button24_Click(object sender, EventArgs e)
         {
-
+            RemoveTransporte();
+            loadTransList();
         }
     }
     
