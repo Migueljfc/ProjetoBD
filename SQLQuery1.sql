@@ -21,8 +21,6 @@
 --	ID Int PRIMARY KEY NOT NULL
 --);
 
-
-
 --CREATE TABLE Destino(
 --	ID Int NOT NULL, 
 --	codPostal Varchar(10) NOT NULL,

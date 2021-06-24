@@ -52,8 +52,8 @@ namespace AgenciaViagens
 
         private SqlConnection getSGBDConnection()
         {
-            return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
-            //return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            //return new SqlConnection("data source= DESKTOP-TB868K4\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
+            return new SqlConnection("data source= LAPTOP-V53SE24E\\SQLEXPRESS;integrated security=true;initial catalog=AgenciaViagens");
         }
 
         private bool verifySGBDConnection()
@@ -415,6 +415,7 @@ namespace AgenciaViagens
             string nome = aloj.Nome;
             string tipo = aloj.Tipo;
             int preco = aloj.Preco;
+
             SqlCommand cmd = new SqlCommand
             {
                 CommandType = CommandType.StoredProcedure,
@@ -428,13 +429,11 @@ namespace AgenciaViagens
             cmd.Parameters.Add(new SqlParameter("@tipo", SqlDbType.VarChar));
             cmd.Parameters.Add(new SqlParameter("@preco", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@FK_Dest", SqlDbType.Int));
-            cmd.Parameters.Add(new SqlParameter("@FK_Tem2", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
             cmd.Parameters["@ID"].Value = id;
             cmd.Parameters["@nome"].Value = nome;
             cmd.Parameters["@tipo"].Value = tipo;
             cmd.Parameters["@FK_Dest"].Value = selectedDestino;
-            cmd.Parameters["@FK_Tem2"].Value = selectedDestino;
             cmd.Parameters["@preco"].Value = preco;
             cmd.Parameters["@message"].Direction = ParameterDirection.Output;
             cmd.Connection = cn;
@@ -488,7 +487,6 @@ namespace AgenciaViagens
             cmd.Parameters.Add(new SqlParameter("@tipo", SqlDbType.VarChar));
             cmd.Parameters.Add(new SqlParameter("@preco", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@FK_Dest", SqlDbType.Int));
-            cmd.Parameters.Add(new SqlParameter("@FK_Tem", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
             cmd.Parameters["@ID"].Value = id;
             cmd.Parameters["@numPassageiros"].Value = numPassageiros;
@@ -497,7 +495,6 @@ namespace AgenciaViagens
             cmd.Parameters["@dataPartida"].Value = dataPartida;
             cmd.Parameters["@dataChegada"].Value = dataChegada;
             cmd.Parameters["@FK_Dest"].Value = selectedAlojamento;
-            cmd.Parameters["@FK_Tem"].Value = selectedAlojamento;
             cmd.Parameters["@preco"].Value = preco;
             cmd.Parameters["@message"].Direction = ParameterDirection.Output;
             cmd.Connection = cn;
@@ -1192,6 +1189,11 @@ namespace AgenciaViagens
             {
                 MessageBox.Show("Tem de selecionar um Transporte na lista");
             }
+        }
+
+        private void listBox4_SelectedIndexChanged_1(object sender, EventArgs e)
+        {
+
         }
     }
     
