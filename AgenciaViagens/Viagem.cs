@@ -13,12 +13,44 @@ namespace AgenciaViagens
 		private string _dataFim;
 		private int _precoTotal;
 		private int _numVagas;
+		private int _idDest;
+		private int _idAloj;
+		private int _idTrans;
+		private int _idClient;
+		private int _pago
 
 
 		public int ViagemID
 		{
 			get { return _ID; }
 			set { _ID = value; }
+		}
+		public int Pago
+		{
+			get { return _pago; }
+			set { _pago = value; }
+		}
+
+		public int DestID
+		{
+			get { return _idDest; }
+			set { _idDest = value; }
+		}
+		public int TransID
+		{
+			get { return _idTrans; }
+			set { _idTrans = value; }
+		}
+		public int AlojID
+		{
+			get { return _idAloj; }
+			set { _idAloj = value; }
+		}
+
+		public int ClientID
+		{
+			get { return _idClient; }
+			set { _idClient = value; }
 		}
 
 
@@ -60,6 +92,10 @@ namespace AgenciaViagens
 		{
 			get { return _numVagas; }
 			set { _numVagas = value; }
+		}
+		public override String ToString()
+		{
+			return "ID: " +_ID + " Cliente ID: " +_idClient+ " | Pago:" + _pago;
 		}
 
 	}

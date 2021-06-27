@@ -118,6 +118,9 @@ namespace AgenciaViagens
             this.textBox18 = new System.Windows.Forms.TextBox();
             this.label21 = new System.Windows.Forms.Label();
             this.listBox5 = new System.Windows.Forms.ListBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.label30 = new System.Windows.Forms.Label();
+            this.textBox24 = new System.Windows.Forms.TextBox();
             this.textBox8 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
@@ -399,8 +402,11 @@ namespace AgenciaViagens
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.checkBox1);
             this.tabPage2.Controls.Add(this.textBox23);
+            this.tabPage2.Controls.Add(this.label30);
             this.tabPage2.Controls.Add(this.label29);
+            this.tabPage2.Controls.Add(this.textBox24);
             this.tabPage2.Controls.Add(this.textBox12);
             this.tabPage2.Controls.Add(this.label15);
             this.tabPage2.Controls.Add(this.textBox22);
@@ -875,7 +881,7 @@ namespace AgenciaViagens
             // 
             // button22
             // 
-            this.button22.Location = new System.Drawing.Point(399, 219);
+            this.button22.Location = new System.Drawing.Point(391, 249);
             this.button22.Name = "button22";
             this.button22.Size = new System.Drawing.Size(67, 29);
             this.button22.TabIndex = 65;
@@ -1050,6 +1056,32 @@ namespace AgenciaViagens
             this.listBox5.TabIndex = 31;
             this.listBox5.SelectedIndexChanged += new System.EventHandler(this.listBox5_SelectedIndexChanged);
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(604, 453);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(64, 24);
+            this.checkBox1.TabIndex = 52;
+            this.checkBox1.Text = "Pago";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(400, 453);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(78, 20);
+            this.label30.TabIndex = 51;
+            this.label30.Text = "ID Cliente ";
+            // 
+            // textBox24
+            // 
+            this.textBox24.Location = new System.Drawing.Point(484, 450);
+            this.textBox24.Name = "textBox24";
+            this.textBox24.Size = new System.Drawing.Size(89, 27);
+            this.textBox24.TabIndex = 50;
+            // 
             // textBox8
             // 
             this.textBox8.Enabled = false;
@@ -1107,12 +1139,13 @@ namespace AgenciaViagens
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(817, 471);
+            this.button1.Location = new System.Drawing.Point(827, 480);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(94, 29);
             this.button1.TabIndex = 20;
             this.button1.Text = "Confirmar";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // textBox7
             // 
@@ -1305,5 +1338,8 @@ namespace AgenciaViagens
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.TextBox textBox23;
         private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Label label30;
+        private System.Windows.Forms.TextBox textBox24;
     }
 }

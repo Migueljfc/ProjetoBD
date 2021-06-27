@@ -37,8 +37,11 @@ namespace AgenciaViagens
         {
             loadClientsList();
             loadDestList();
-            loadAlojList();
-            loadTransList();
+            listBox4.Enabled = false;
+            listBox4.Items.Add("Selecione um destino primeiro");
+            listBox5.Enabled = false;
+            listBox5.Items.Add("Selecione um alojamento primeiro");
+
             textBox1.Text = currentAdmin.ToString();
             listBox2.SelectedIndex = listBox2.Items.Count-1;
             if(listBox2.SelectedIndex >= 0)
@@ -71,7 +74,7 @@ namespace AgenciaViagens
         {
             if (listBox1.SelectedIndex >= 0)
             {
-                currentViagem = listBox2.SelectedIndex;
+                currentViagem = listBox1.SelectedIndex;
                 ShowViagem();
             }
         }
@@ -170,7 +173,7 @@ namespace AgenciaViagens
             SqlCommand cmd = new SqlCommand("SELECT * FROM Alojamento", cn);
             SqlDataReader reader = cmd.ExecuteReader();
             listBox4.Items.Clear();
-
+            listBox4.Enabled = true;
             while (reader.Read())
             {
                 Alojamento aloj = new Alojamento();
@@ -194,6 +197,7 @@ namespace AgenciaViagens
             SqlCommand cmd = new SqlCommand("SELECT * FROM Transporte", cn);
             SqlDataReader reader = cmd.ExecuteReader();
             listBox5.Items.Clear();
+            listBox5.Enabled = true;
 
             while (reader.Read())
             {
@@ -211,6 +215,37 @@ namespace AgenciaViagens
 
             currentTransporte = 0;
             ShowTransporte();
+        }
+
+        private void loadViagList()
+        {
+            if (!verifySGBDConnection())
+                return;
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM Viagem JOIN Pagamento Where Viagem.FK_Pag = Pagamento.ID", cn);
+            SqlDataReader reader = cmd.ExecuteReader();
+            listBox1.Items.Clear();
+            listBox1.Enabled = true;
+
+            while (reader.Read())
+            {
+                Viagem v = new Viagem();
+                v.ViagemID = Convert.ToInt32(reader["ID"]);
+                v.DataInicio = reader["tipo"].ToString();
+                v.DataFim = reader["companhia"].ToString();
+                v.PrecoTotal = Convert.ToInt32(reader["preco"]);
+                v.NumVagas = Convert.ToInt32(reader["numPassageiros"]);
+                v.Pago = Convert.ToInt32(reader["Pago"]);
+                v.AlojID = Convert.ToInt32(reader["FK_IdAloj"]);
+                v.TransID = Convert.ToInt32(reader["FK_IdTrans"]);
+                v.ClientID = Convert.ToInt32(reader["FK_Client"]);
+                v.DestID = Convert.ToInt32(reader["FK_IdDest"]);
+                listBox1.Items.Add(v);
+            }
+            cn.Close();
+
+            currentViagem = 0;
+            ShowViagem();
         }
 
         private void CreateClient(Cliente client)
@@ -355,17 +390,18 @@ namespace AgenciaViagens
 
         }
 
-        private void SaveViagem(Destino d)
+        private void SaveViagem(Viagem v)
         {
 
             if (!verifySGBDConnection())
             {
                 return;
             }
-            int id = d.ID;
-            string pais = d.Pais;
-            string cidade = d.Cidade;
-            string codpostal = d.CodPostal;
+            int id = v.ViagemID;
+            string dataI = v.DataInicio;
+            string dataF = v.DataFim;
+            int precoT = v.PrecoTotal;
+            int numVagas = v.NumVagas;
             SqlCommand cmd = new SqlCommand
             {
                 CommandType = CommandType.StoredProcedure,
@@ -375,14 +411,36 @@ namespace AgenciaViagens
 
             cmd.Parameters.Clear();
             cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int));
-            cmd.Parameters.Add(new SqlParameter("@codPostal", SqlDbType.VarChar));
-            cmd.Parameters.Add(new SqlParameter("@pais", SqlDbType.VarChar));
-            cmd.Parameters.Add(new SqlParameter("@cidade", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@dataInicial", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@dataFinal", SqlDbType.VarChar));
+            cmd.Parameters.Add(new SqlParameter("@numVagas", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@precoTotal", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_IdAdmin", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_IdAloj", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_IdTrans", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_IdDest", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_Pag", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@Pago", SqlDbType.Int));
+            cmd.Parameters.Add(new SqlParameter("@FK_Client", SqlDbType.Int));
             cmd.Parameters.Add(new SqlParameter("@message", SqlDbType.NVarChar, 250));
             cmd.Parameters["@ID"].Value = id;
-            cmd.Parameters["@pais"].Value = pais;
-            cmd.Parameters["@cidade"].Value = cidade;
-            cmd.Parameters["@codPostal"].Value = codpostal;
+            cmd.Parameters["@dataInicial"].Value = dataI;
+            cmd.Parameters["@dataFinal"].Value = dataF;
+            cmd.Parameters["@precoTotal"].Value = precoT;
+            cmd.Parameters["@numVagas"].Value = numVagas;
+            cmd.Parameters["@FK_IdAdmin"].Value = textBox1.Text;
+            cmd.Parameters["@FK_IdTrans"].Value = selectedTransporte;
+            cmd.Parameters["@FK_IdDest"].Value = selectedDestino;
+            cmd.Parameters["@FK_IdAloj"].Value = selectedAlojamento;
+            cmd.Parameters["@FK_Client"].Value = Convert.ToInt32(textBox24.Text);
+            cmd.Parameters["@FK_Pag"].Value = id;
+            if(checkBox1.Checked){
+                cmd.Parameters["@Pago"].Value = 1;
+            }
+            else
+            {
+                cmd.Parameters["@Pago"].Value = 0;
+            }
             cmd.Parameters["@message"].Direction = ParameterDirection.Output;
             cmd.Connection = cn;
 
@@ -401,8 +459,8 @@ namespace AgenciaViagens
                
                 cn.Close();
                 ClearFields();
-                listBox3.Items.Add(d);
-                loadDestList();
+                listBox1.Items.Add(v);
+                loadViagList();
             }
 
         }
@@ -496,7 +554,7 @@ namespace AgenciaViagens
             cmd.Parameters["@tipo"].Value = tipo;
             cmd.Parameters["@dataPartida"].Value = dataPartida;
             cmd.Parameters["@dataChegada"].Value = dataChegada;
-            cmd.Parameters["@FK_Dest"].Value = selectedAlojamento;
+            cmd.Parameters["@FK_Dest"].Value = selectedDestino;
             cmd.Parameters["@preco"].Value = preco;
             cmd.Parameters["@message"].Direction = ParameterDirection.Output;
             cmd.Connection = cn;
@@ -599,6 +657,22 @@ namespace AgenciaViagens
             v = (Viagem)listBox1.Items[currentViagem];
             textBox7.Text = v.ViagemID.ToString();
             textBox8.Text = v.PrecoTotal.ToString();
+            dateTimePicker1.Text = v.DataInicio;
+            dateTimePicker2.Text = v.DataFim;
+            textBox22.Text = v.DestID.ToString();
+            textBox12.Text = v.AlojID.ToString();
+            textBox23.Text = v.TransID.ToString();
+            textBox24.Text = v.ClientID.ToString();
+            if(v.Pago == 1)
+            {
+                checkBox1.Checked = true; 
+            }
+            else
+            {
+                checkBox1.Checked = false;
+            }
+
+
         }
         private void RemoveClient()
         {
@@ -1133,6 +1207,7 @@ namespace AgenciaViagens
                 MessageBox.Show("Adicionado à viagem");
                 selectedDestino = Convert.ToInt32(textBox21.Text);
                 textBox22.Text = selectedDestino.ToString();
+                loadAlojList();
             }
             else
             {
@@ -1192,6 +1267,7 @@ namespace AgenciaViagens
                 textBox12.Text = selectedAlojamento.ToString();
                 precoAloj = Convert.ToInt32(textBox11.Text);
                 textBox8.Text = precoAloj.ToString();
+                loadTransList();
             }
             else
             {
@@ -1251,6 +1327,29 @@ namespace AgenciaViagens
         {
             RemoveTransporte();
             loadTransList();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Viagem v = new Viagem();
+            v = (Viagem)listBox1.Items[currentViagem];
+            v.ViagemID = Convert.ToInt32(textBox7.Text);
+            textBox8.Text = v.PrecoTotal.ToString();
+            dateTimePicker1.Text = v.DataInicio;
+            dateTimePicker2.Text = v.DataFim;
+            textBox22.Text = v.DestID.ToString();
+            textBox12.Text = v.AlojID.ToString();
+            textBox23.Text = v.TransID.ToString();
+            textBox24.Text = v.ClientID.ToString();
+            if (v.Pago == 1)
+            {
+                checkBox1.Checked = true;
+            }
+            else
+            {
+                checkBox1.Checked = false;
+            }
+            SaveViagem();
         }
     }
     
